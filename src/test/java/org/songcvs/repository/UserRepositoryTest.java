@@ -1,5 +1,8 @@
 package org.songcvs.repository;
 
+import java.util.List;
+
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.songcvs.Application;
@@ -16,8 +19,8 @@ public class UserRepositoryTest {
 	UserRepository repository;
 
 	@Test
-	public void testFindByID() {
-		User user = repository.findOne(1);
-		org.junit.Assert.assertNotNull(user);
+	public void testFindAll() {
+		List<User> userList = (List<User>) repository.findAll();
+		Assert.assertTrue(userList.isEmpty());
 	}
 }

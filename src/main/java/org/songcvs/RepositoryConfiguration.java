@@ -10,5 +10,6 @@ public class RepositoryConfiguration extends RepositoryRestConfigurerAdapter {
 	@Override
 	public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config) {
 		config.setBasePath("/api");
+		config.getCorsRegistry().addMapping("/api/**");
 	}
 }
