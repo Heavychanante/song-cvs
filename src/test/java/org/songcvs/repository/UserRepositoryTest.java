@@ -21,6 +21,6 @@ public class UserRepositoryTest {
 	@Test
 	public void testFindAll() {
 		List<User> userList = (List<User>) repository.findAll();
-		Assert.assertTrue(userList.isEmpty());
+		Assert.assertTrue(!userList.isEmpty());
 	}
 }

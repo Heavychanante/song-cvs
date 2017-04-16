@@ -11,8 +11,12 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
 @Entity
 @Table(name = "versions")
+@JsonInclude(Include.NON_EMPTY)
 public class Version {
 
 	// ATRIBUTOS //
@@ -40,11 +44,9 @@ public class Version {
 	private User user;
 
 	@ManyToOne
-	@JoinColumn(name = "tab_file_id")
 	private File tabFile;
 
 	@ManyToOne
-	@JoinColumn(name = "audio_file_id")
 	private File audioFile;
 
 	public Integer getId() {
