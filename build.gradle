@@ -4,6 +4,9 @@ apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'com.bmuschko.docker-remote-api'
 
+import com.bmuschko.gradle.docker.tasks.image.*
+import com.bmuschko.gradle.docker.tasks.container.*
+
 version = '1.0.0-SNAPSHOT'
 sourceCompatibility = 1.8
 
@@ -34,9 +37,6 @@ dependencies {
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }
 
-import com.bmuschko.gradle.docker.tasks.image.Dockerfile
-import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
-
 // Run Application
 run {
     main = 'org.songcvs.Application'
@@ -50,4 +50,20 @@ task buildDBImage(type: DockerBuildImage) {
     onComplete {
         println "Song CVS DB Image built succesfully"
     }
+}
+
+// Creates DB Image container
+task createDBImageContainer(type:DockerCreateContainer, dependsOn: [buildDBImage]) {
+	targetImageId { 'song-cvs/db:latest' }
+	portBindings = ['3306:3306']
+	env = ["MYSQL_DATABASE=songcvs",
+      	   "MYSQL_USER=songcvs",
+      	   "MYSQL_PASSWORD=songcvs",
+      	   "MYSQL_ROOT_PASSWORD=root"]
+	//volumesFrom = ["/var/lib/mysql:rw"]
+}
+
+// Runs the DB container
+task startDBImageContainer(type: DockerStartContainer, dependsOn: createDBImageContainer) {
+    targetContainerId { createDBImageContainer.getContainerId() }
 }

@@ -1,0 +1,16 @@
+version: '2'
+services:
+  songcvs-db:
+    image: song-cvs/db:latest
+    command: mysqld --innodb-buffer-pool-size=20M
+    volumes:
+      - "mariadb:/var/lib/mysql:rw"
+    environment:
+      - "MYSQL_DATABASE=songcvs"
+      - "MYSQL_USER=songcvs"
+      - "MYSQL_PASSWORD=songcvs"
+      - "MYSQL_ROOT_PASSWORD=root"
+    ports:
+      - "3306:3306"
+volumes:
+  mariadb:
