@@ -46,10 +46,19 @@ run {
 task buildDBImage(type: DockerBuildImage) {
     inputDir = file('src/main/resources/docker/db')
     tag = 'song-cvs/db:latest'
+}
 
-    onComplete {
-        println "Song CVS DB Image built succesfully"
-    }
+// Create BE Image
+task buildBEImage(type: DockerBuildImage, dependsOn: [build]) {
+    inputDir = file('src/main/resources/docker/be')
+    tag = 'song-cvs/be:latest'
+    
+    doFirst {
+	    copy {
+			from jar
+	      	into "src/main/resources/docker/be/build"
+	    }
+	}
 }
 
 // Creates DB Image container
@@ -60,10 +69,31 @@ task createDBImageContainer(type:DockerCreateContainer, dependsOn: [buildDBImage
       	   "MYSQL_USER=songcvs",
       	   "MYSQL_PASSWORD=songcvs",
       	   "MYSQL_ROOT_PASSWORD=root"]
-	//volumesFrom = ["/var/lib/mysql:rw"]
+	binds = ['/var/lib/mysql' : '/var/lib/mysql:rw']
 }
 
 // Runs the DB container
 task startDBImageContainer(type: DockerStartContainer, dependsOn: createDBImageContainer) {
+    targetContainerId { createDBImageContainer.getContainerId() }
+}
+
+// Creates BE Image container
+task createBEImageContainer(type:DockerCreateContainer, dependsOn: [buildBEImage, startDBImageContainer]) {
+	targetImageId { 'song-cvs/be:latest' }
+	portBindings = ['8080:8080']
+
+	// Depends on BE Image container
+	doFirst {
+        links = [ "${createDBImageContainer.getContainerId()}:database" ]
+    }
+}
+
+// Runs the BE container
+task startBEImageContainer(type: DockerStartContainer, dependsOn: createBEImageContainer) {
+    targetContainerId { createBEImageContainer.getContainerId() }
+}
+
+// Stops the DB container
+task stopDBImageContainer(type: DockerStopContainer) {
     targetContainerId { createDBImageContainer.getContainerId() }
 }
